@@ -1,12 +1,17 @@
 #!/usr/bin/env ruby
+HAPPY = 0
+ANGRY = 1
+SAD = 2
+JOYFUL = 3
 
 class PlayListEngine
-	def initialize list
-		@length = list.length
+	def initialize emo, list
+		@emo = emo
+		@n = list.length
 		@rate_sum = 0.0
 		@musics = list.collect do |e| 
 			@rate_sum += e[:rate]
-			Music.new(e[:path], e[:rate], @length)
+			Music.new(e[:path], e[:rate], @n)
 		end
 		add_2_playlist get_next_song
 		@cur_i = 0
@@ -47,7 +52,7 @@ class PlayListEngine
 		add_2_playlist get_next_song if @cur_i == @play_list.length
 		play
 	end
-	def last_song
+	def prev_song
 		if @cur_i == 0
 			@cur_i = @play_list.length - 1
 			raise Exception.new "It's already the first song!"
@@ -67,8 +72,8 @@ class PlayListEngine
 	# reward system
 	def reward music
 		sum = 0
-		@musics.each {|m| sum += m.punish if m != music}
-		music.reward sum
+		@musics.each {|m| sum += m.punish(@n) if m != music}
+		music.reward sum, @n
 		save
 	end
 	def good_job
@@ -79,7 +84,7 @@ class PlayListEngine
 			reward @play_list[@cur_i]
 		end
 	end
-	def ends_naturally
+	def survives_9_secs
 		reward @play_list[@cur_i]
 		next_song
 	end
@@ -90,14 +95,18 @@ class PlayListEngine
 		good_job
 		play
 	end
-	def add_songs *paths
-		n = @play_list.length
-		paths.each do |path|
-			@musics.push Music.new path, n*n, n  # 平方？
+	def add_new_songs *paths
+		rate = @n
+		if paths.last.class == false #check if local
+			rate = @n**2
+			paths.pop
 		end
-		save @musics[n...@musics.length]
+		paths.each do |path|
+			@musics.push Music.new path, rate, @n  # 平方？
+		end
+		save @musics[(@musics.length-paths.length)...@musics.length]
 	end
-	#file system
+	#file system, related with @emo
 	def save musics=nil
 		if musics
 			puts musics
@@ -109,7 +118,6 @@ end
 
 class Music
 	def initialize path, rate, n
-		@@length ||= n
 		@rate = @cur_rate = rate
 		@step = rate*1.0/n
 		@path = path
@@ -134,15 +142,15 @@ class Music
 		@path.split("/").last
 	end
 	#reward system, won't change rate_sum
-	def punish
+	def punish n
 		tmp = @step
 		@rate -= @step
-		@step = 1.0*@rate / @@length
+		@step = 1.0*@rate / n
 		tmp
 	end 
-	def reward r
+	def reward r, n
 		@rate += r
-		@step = @rate / @@length
+		@step = @rate / n
 	end
 	#file system
 	def to_s
@@ -152,24 +160,31 @@ end
 
 
 #a = [{:rate=>16, :path=>"123/test1.mp3"}, {:rate=>16, :path=>"123/test2.mp3"}, {:rate=>16, :path=>"123/test3.mp3"}, {:rate=>16, :path=>"123/test4.mp3"}]
-a = (1..10).collect { |e| {:path=>"music/track #{e}", :rate=>100}}
-engine = PlayListEngine.new a
+a = (1..10).collect { |e| {:path=>"music/track #{e}", :rate=>80}}
+engine = PlayListEngine.new ANGRY, a
+n = 11
 while true
 	s = STDIN.readline
 	s = s.split("\n")[0]
-	if s == "l"
-		engine.last_song
-	elsif s == "g"
+	if s == "p"
 		begin
-			engine.good_job
-			engine.play
+			engine.prev_song
 		rescue Exception => e
 			puts e
 		end
-	elsif s == "e"
-		engine.ends_naturally
+	elsif s == "g"
+		begin
+			engine.good_job
+		rescue Exception => e
+			puts e
+		end
+	elsif s == "v"
+		engine.survived_5_secs
 	elsif s == "s"
 		engine.save
+	elsif s == "a"
+		engine.add_new_songs "new_music/new #{n}", true
+		n += 1
 	else
 		i = s.to_i
 		if i == 0
