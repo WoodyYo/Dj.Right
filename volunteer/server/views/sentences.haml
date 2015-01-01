@@ -1,0 +1,11 @@
+%html
+  %head
+    %title Dj. Right - #{@emo}
+    %body
+      %ul
+        -@a.each do |s|
+          %li= s
+      %form{ :action => "/sentences/#{@emo}", :method => "post"}
+        %label{:for => "sentence"}
+        %textarea{:name => "sentence"}
+        %input{:type => "submit", :value => "GO~"}
