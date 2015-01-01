@@ -19,25 +19,16 @@ class DBManager
 		end
 		create_user "woodyyo5566" unless get_by_id "woodyyo5566"  # create super user
 	end
-	def dropall
-		puts "If u r sure to do this, please enter the project's name"
-		s = STDIN.readline.split("\n")[0]
-		if s == "Dj. Right"
-			puts "Got it~"
-			@db.drop_table :users
-			@db.drop_table :messages
-		else
-			puts "Screw u"
-		end
-	end
 	def create_user id
+		if id =~ / |\n/i
+			raise ArgumentError, 'ID Illegal'
+		end
 		begin
 			@db[:users].insert(:id => id)
-			msg = "安安，#{id}，歡迎成為小白鼠#{@db[:users].count}號！"
-			{:id => id, :angry => 0, :sad => 0, :joyful => 0, :happy => 0, :msgs => [msg]}
-		rescue => e  # unique
+			{:id => id, :angry => 0, :sad => 0, :joyful => 0, :happy => 0, :msgs => []}
+		rescue => e
 			puts e
-			{}
+			raise ArgumentError, 'ID Used'
 		end
 	end
 	def get_by_id userid
@@ -67,8 +58,16 @@ class DBManager
 		@db[:user].where(:id => userid).update(emo => count)
 	end
 	#### ROOT's POWER ####
-	def get_db
-		@db
+	def dropall
+		puts "If u r sure to do this, please enter the project's name"
+		s = STDIN.readline.split("\n")[0]
+		if s == "Dj. Right"
+			puts "Got it~"
+			@db.drop_table :users
+			@db.drop_table :messages
+		else
+			puts "Screw u"
+		end
 	end
 	def puts_all_msgs userid
 		@db[:messages].where(:id => userid).each { |e| puts e }
