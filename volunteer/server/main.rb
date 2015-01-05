@@ -4,16 +4,17 @@ require 'json'
 require 'haml'
 load 'db_manager.rb'
 
-set :port, 8888
+set :port, 8799 # project go go XDD
 set :bind, '0.0.0.0'
 
 Manager = DBManager.new
 DataPath = "data"
 
-get 'create/:id' do
+get '/create/:id' do
 	begin
-		user = Manager.create_user userid # return blank user
-		msg = "安安，#{id}，歡迎成為小白鼠#{@db[:users].count}號！"
+		id = params[:id]
+		user = Manager.create_user id # return blank user
+		msg = "安安，#{id}，歡迎成為小白鼠#{Manager.user_count}號！"
 		user[:msgs] = msg
 		JSON.generate user
 	rescue => e  # ID Used or Illegal
@@ -27,7 +28,7 @@ get '/profile/:id' do
 		Manager.read_all_msgs userid
 		JSON.generate user 
 	else
-		"user #{id} not found!"
+		"user #{userid} not found!"
 	end
 end
 get '/sentence/:emo' do # 拿單一句子，也就是手機端做的事
