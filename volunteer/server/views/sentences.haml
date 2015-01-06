@@ -1,11 +1,24 @@
 %html
   %head
     %title Dj. Right - #{@emo}
+    %link{:type => "text/css", :rel => "stylesheet", :href => "/bootstrap/css/bootstrap.min.css"}
+    %link{:type => "text/css", :rel => "stylesheet", :href => "/css/sentences.css"}
     %body
-      %ul
-        -@a.each do |s|
-          %li= s
+      %h1 #{@emo.upcase}
+      %ul{:class => "nav nav-tabs"}
+        -["happy", "angry", "sad", "joyful"].each do |s|
+          -if s == @emo
+            %li.active
+              %a{:href => "/sentences/#{s}"}= s.upcase
+          -else
+            %li
+              %a{:href => "/sentences/#{s}"}= s.upcase
+      %br
+      .sentence-list
+        %ul.list-group
+          -@a.each do |s|
+            %li.list-group-item= s
       %form{ :action => "/sentences/#{@emo}", :method => "post"}
         %label{:for => "sentence"}
-        %textarea{:name => "sentence"}
-        %input{:type => "submit", :value => "GO~"}
+          %textarea{:name => "sentence"}
+          %input{:class => "btn btn-primary", :type => "submit", :value => "GO~"}

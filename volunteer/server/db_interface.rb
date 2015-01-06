@@ -11,7 +11,6 @@ class DBManager
 			puts "Got it, master~"
 			@db.drop_table :users
 			@db.drop_table :messages
-			@db.drop_table :sentences
 		else
 			puts "Screw u"
 		end
@@ -41,6 +40,9 @@ class DBManager
 	def puts_all_sentences
 		@sentences.each {|e| puts e}
 	end
+	def rm_sentence s_id
+		@sentences.where(:id => s_id).delete
+	end
 end
 
 if __FILE__ == $PROGRAM_NAME
@@ -58,12 +60,15 @@ if __FILE__ == $PROGRAM_NAME
 		m.puts_all_sentences
 		#elsif arg == 'adds'
 		#DBManager.enter_msgs{|s| m.add_sentence s, ARGV[1]}
+	elsif arg == 'rmsentence'
+		m.rm_sentence ARGV[1].to_i
 	elsif arg == 'commands'
 		puts 'drop'
 		puts 'msg'
 		puts 'peek'
 		puts 'broadcast'
 		puts 'sentences'
+		puts 'rmsentence'
 	elsif arg == 'completions'
 		if ['msg', 'peek'].include? ARGV[1]
 			m.get_all_users.each do |e|
