@@ -17,7 +17,7 @@ class DBManager
 		end
 	end
 	def puts_all_msgs userid
-		@messages.where(:id => userid).each { |e| puts e }
+		@messages.where(:mid => userid).each { |e| puts e }
 	end
 	def DBManager.enter_msgs
 		s = ''
@@ -34,18 +34,19 @@ class DBManager
 		# auto terminate~
 	end
 	def broadcast msg
-		@users.select(:id).each do |e|
-			send_msg e[:id], msg
+		@users.select(:userid).each do |e|
+			send_msg e[:userid], msg
 		end
 	end
 	def puts_all_sentences
 		@sentences.each {|e| puts e}
 	end
 	def rm_sentence s_id
-		@sentences.where(:id => s_id).delete
+		@sentences.where(:sid => s_id).delete
 	end
 	def refresh_sentences
 		@sentences.update(:count => 0)
+		@db.drop_table :su_relationships
 	end
 end
 
@@ -79,7 +80,7 @@ if __FILE__ == $PROGRAM_NAME
 	elsif arg == 'completions'
 		if ['msg', 'peek'].include? ARGV[1]
 			m.get_all_users.each do |e|
-				puts e[:id]
+				puts e[:userid]
 			end
 		end
 	else

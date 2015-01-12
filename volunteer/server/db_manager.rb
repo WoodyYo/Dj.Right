@@ -6,20 +6,20 @@ class DBManager
 	def initialize
 		@db = Sequel.sqlite('v_server.db')
 		@db.create_table? :users do
-			String :id, :unique => true, :null => false
+			String :userid, :unique => true, :null => false
 			Integer :angry, :default => 0
 			Integer :sad, :default => 0
 			Integer :happy, :default => 0
 			Integer :joyful, :default => 0
 		end
 		@db.create_table? :messages do
-			String :id
+			String :mid
 			Text :body
 			DateTime :time
 			FalseClass :read, :default => false
 		end
 		@db.create_table? :sentences do
-			primary_key :id
+			primary_key :sid
 			String :sentence, :unique => true
 			Integer :emo
 			Integer :count, :default => 0
@@ -42,15 +42,15 @@ class DBManager
 			raise ArgumentError, 'ID Illegal'
 		end
 		begin
-			@users.insert(:id => id)
-			{:id => id, :angry => 0, :sad => 0, :joyful => 0, :happy => 0, :msgs => []}
+			@users.insert(:userid => id)
+			{:userid => id, :angry => 0, :sad => 0, :joyful => 0, :happy => 0, :msgs => []}
 		rescue => e
 			puts e
 			raise ArgumentError, 'ID Used'
 		end
 	end
 	def get_by_id userid
-		user = @users.where(:id => userid).first
+		user = @users.where(:userid => userid).first
 		user[:msgs] = get_all_msgs(userid) if user
 		user
 	end
@@ -59,28 +59,34 @@ class DBManager
 	end
 	def send_msg userid, msg
 		if get_by_id userid
-			@messages.insert(:id => userid, :body => msg, :time => Time.now)
+			@messages.insert(:mid => userid, :body => msg, :time => Time.now)
 			true
 		else
 			false
 		end
 	end
 	def get_all_msgs userid  # only return msgs' body. Setting the flag or not is the server's business!
-		msgs = @messages.select(:body).where(:id => userid, :read => false).all
+		msgs = @messages.select(:body).where(:mid => userid, :read => false).all
 		msgs.collect { |e| e[:body] }
 	end
 	def read_all_msgs userid  # only set the flag to true
-		@messages.where(:id => userid, :read => false).update(:read => true)
+		@messages.where(:mid => userid, :read => false).update(:read => true)
 	end
 	def set_emo_count userid, emo, count
-		@users.where(:id => userid).update(emo => count)
+		@users.where(:userid => userid).update(emo => count)
 	end
 	def get_sentence emo, userid
 		emo = LIST.find_index emo
-		s = @sentences.where('count < 3 and emo=?', emo).first
+		s = nil
+		@sentences.where('count < 3 and emo=?', emo).each do |sentence|
+			if @su_rs.where(:sid => sentence[:sid], :userid => userid).count == 0
+				s = sentence
+				break
+			end
+		end
 		if s
-			@sentences.where(:id => s[:id]).update(:count => s[:count]+1)
-			@su_rs.insert(:sid => s[:id], :userid => userid)
+			@sentences.where(:sid => s[:sid]).update(:count => s[:count]+1)
+			@su_rs.insert(:sid => s[:sid], :userid => userid)
 			s[:sentence]
 		else
 			''
@@ -94,7 +100,10 @@ class DBManager
 	end
 	def add_sentence s, emo
 		emo = LIST.find_index emo
-		@sentences.insert(:sentence => s, :emo => emo)
+		begin
+			@sentences.insert(:sentence => s, :emo => emo)
+		rescue Sequel::UniqueConstraintViolation => e
+			puts e
+		end
 	end
 end
-
