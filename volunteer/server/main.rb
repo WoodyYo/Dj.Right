@@ -10,12 +10,15 @@ set :bind, '0.0.0.0'
 Manager = DBManager.new
 DataPath = "data"
 
-get '/create/:id' do
+get "/" do
+	haml  :"index"
+end
+post '/create' do
 	begin
 		id = params[:id]
 		user = Manager.create_user id # return blank user
 		msg = "安安，#{id}，歡迎成為小白鼠#{Manager.user_count}號！"
-		user[:msgs] = msg
+		user[:msgs] = [msg]
 		JSON.generate user
 	rescue => e  # ID Used or Illegal
 		e.to_s
@@ -31,13 +34,19 @@ get '/profile/:id' do
 		"user #{userid} not found!"
 	end
 end
-get '/sentence/:emo' do # 拿單一句子，也就是手機端做的事
+get '/sentence/:userid/:emo' do # 拿單一句子，也就是手機端做的事
 	emo = params[:emo]
-	Manager.get_sentence emo # return '' if no sentence
+	userid = params[:userid]
+	Manager.get_sentence emo, userid # return '' if no sentence
 end
 get '/sentences/:emo' do # web version, 拿所有句子，附贈上傳表格
 	@emo = params[:emo]
 	@a = Manager.get_sentences @emo
+	haml :"sentences"
+end
+get '/sentences' do
+	@emo = "總覽"
+	@a = []
 	haml :"sentences"
 end
 post '/sentences/:emo' do
@@ -47,18 +56,22 @@ post '/sentences/:emo' do
 	@a = Manager.get_sentences @emo
 	haml :"sentences"
 end
-post '/upload/:id' do
-	userid = params[:id]
+post '/upload/:emo' do
 	emo = params[:emo].to_sym  # A Symbol
+	ext = params[:file][:filename].split(".").last
+	userid = params[:file][:filename].split("_").first
 	user = Manager.get_by_id(userid)
-	ext = params[:file][:filename].split(".")[1]
+	filepath = [DataPath, emo, userid+"_"+user[emo].to_s+"."+ext].join "/";
 	begin
-		File.open([DataPath, emo, userid+"_"+user[emo]+ext].join "/", "w") do |f|
+		File.open(filepath, "w") do |f|
 			f.write(params[:file][:tempfile].read)
+			puts params[:file][:tempfile].read
 		end
-		Manager.set_emo_count userid, emo, user[emo]
-		"OK"
-	rescue
-		"OOOPS"
+		Manager.set_emo_count userid, emo, user[emo]+1
+		"Y"
+	rescue => e
+		puts e
+		puts "========================="
+		"N"
 	end
 end

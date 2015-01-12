@@ -24,9 +24,14 @@ class DBManager
 			Integer :emo
 			Integer :count, :default => 0
 		end
+		@db.create_table? :su_relationships do
+			String :userid
+			Integer :sid
+		end
 		@users = @db[:users]
 		@messages = @db[:messages]
 		@sentences = @db[:sentences]
+		@su_rs = @db[:su_relationships]
 		create_user "woodyyo5566" unless get_by_id "woodyyo5566"  # create super user
 	end
 	def user_count
@@ -70,12 +75,13 @@ class DBManager
 	def set_emo_count userid, emo, count
 		@users.where(:id => userid).update(emo => count)
 	end
-	def get_sentence emo
+	def get_sentence emo, userid
 		emo = LIST.find_index emo
 		s = @sentences.where('count < 3 and emo=?', emo).first
 		if s
 			@sentences.where(:id => s[:id]).update(:count => s[:count]+1)
-			s
+			@su_rs.insert(:sid => s[:id], :userid => userid)
+			s[:sentence]
 		else
 			''
 		end

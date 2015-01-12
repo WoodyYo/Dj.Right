@@ -11,6 +11,7 @@ class DBManager
 			puts "Got it, master~"
 			@db.drop_table :users
 			@db.drop_table :messages
+			@db.drop_table :su_relationships
 		else
 			puts "Screw u"
 		end
@@ -43,6 +44,9 @@ class DBManager
 	def rm_sentence s_id
 		@sentences.where(:id => s_id).delete
 	end
+	def refresh_sentences
+		@sentences.update(:count => 0)
+	end
 end
 
 if __FILE__ == $PROGRAM_NAME
@@ -62,6 +66,8 @@ if __FILE__ == $PROGRAM_NAME
 		#DBManager.enter_msgs{|s| m.add_sentence s, ARGV[1]}
 	elsif arg == 'rmsentence'
 		m.rm_sentence ARGV[1].to_i
+	elsif arg == 'refresh'
+		m.refresh_sentences
 	elsif arg == 'commands'
 		puts 'drop'
 		puts 'msg'
@@ -69,6 +75,7 @@ if __FILE__ == $PROGRAM_NAME
 		puts 'broadcast'
 		puts 'sentences'
 		puts 'rmsentence'
+		puts 'refresh'
 	elsif arg == 'completions'
 		if ['msg', 'peek'].include? ARGV[1]
 			m.get_all_users.each do |e|

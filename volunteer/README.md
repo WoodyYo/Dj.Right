@@ -7,4 +7,4 @@ Android 端可以自由切換user。
 
 #TODO
 
-把語言改成ruby，滿足我基本教義派的變態需求。
+修改資料庫，多存一個 "userid - sentenceif"　的資料，以免同一個人一直拿到同一句話!
