@@ -75,3 +75,6 @@ post '/upload/:emo' do
 		"N"
 	end
 end
+get '/readme' do
+	haml :"readme"
+end
