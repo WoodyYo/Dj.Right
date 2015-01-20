@@ -32,7 +32,7 @@ class DBManager
 		@messages = @db[:messages]
 		@sentences = @db[:sentences]
 		@su_rs = @db[:su_relationships]
-		create_user "woodyyo5566" unless get_by_id "woodyyo5566"  # create super user
+		create_user "admin5566" unless get_by_id "admin5566"  # create super user
 	end
 	def user_count
 		@users.count

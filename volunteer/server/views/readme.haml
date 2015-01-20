@@ -4,18 +4,34 @@
     %link{:type => "text/css", :rel => "stylesheet", :href => "/bootstrap/css/bootstrap.min.css"}
     %link{:type => "text/css", :rel => "stylesheet", :href => "/css/readme.css"}
   %body
+    .bar
+      %a{:href => "/"} 回首頁
     %h2 主要功能
+    %div{:style => "width: 60%; font-style: italic"}
+      %q{:style => "margin-right: 70px"}
+        去錄音吧！我把全世界的財富，都放在
+        %a{:href => "/app-release.apk"} 這個app
+        裡了。
+        %span{:style => "text-decoration: underline"} 每個情緒錄完十筆資料的人
+        ，就能成為新世界的神……
+      %div{:style => "float: right"}
+        \--DJ. Right和他的快樂夥伴
+    %br
     %img{:src => "image/login.jpg", :width => "200px"}
     %div 第一次打開app，請先設定一個專屬的id
     %img{:src => "image/emo.jpg", :width => "200px"}
     .red
-      選擇一個對應你現在情緒的圖案。
+      選擇一個對應你現在情緒的圖案。(右上角，Joyful，是喜悅的意思。請回想一下初戀的心情）
+      %br
+      %span{:style => "color: gray"} 對了我沒有初戀...
     %img{:src => "image/ready.jpg", :width => "200px"}
     %img{:src => "image/recording.jpg", :width => "200px"}
     .blue
       如果一時詞窮，可以叫小DJ「幫我想一句」
     .red
       按下紅色麥克風開始錄音
+      %br
+      每次約10~15秒，請勿濫竽充數>_0
     %div 再按一次灰色麥克風結束錄音
     %h2 訊息系統
     %div 還記得說好的訊息系統嗎？每天午夜的溫馨提示也會透過這個系統傳遞喔

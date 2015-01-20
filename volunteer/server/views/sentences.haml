@@ -4,22 +4,25 @@
     %link{:type => "text/css", :rel => "stylesheet", :href => "/bootstrap/css/bootstrap.min.css"}
     %link{:type => "text/css", :rel => "stylesheet", :href => "/css/sentences.css"}
     %body
-      %h1 #{@emo.upcase if @emo}
-      %ul{:class => "nav nav-tabs"}
-        -["happy", "angry", "sad", "joyful"].each do |s|
-          -if s == @emo
-            %li.active
-              %a{:href => "/sentences/#{s}"}= s.upcase
-          -else
-            %li
-              %a{:href => "/sentences/#{s}"}= s.upcase
-      %br
-      .sentence-list
-        %ul.list-group
-          -@a.each do |s|
-            %li.list-group-item= s
-
-      %form{ :action => "/sentences/#{@emo}", :method => "post"}
-        %label{:for => "sentence"}
-          %textarea{:name => "sentence"}
-          %input{:class => "btn btn-primary", :type => "submit", :value => "ADD"}
+      .bar
+        %a{:href => "/"} 回首頁
+      .main
+        %h1 #{@emo.upcase if @emo}
+        %ul{:class => "nav nav-tabs"}
+          -["happy", "angry", "sad", "joyful"].each do |s|
+            -if s == @emo
+              %li.active
+                %a{:href => "/sentences/#{s}"}= s.upcase
+            -else
+              %li
+                %a{:href => "/sentences/#{s}"}= s.upcase
+        %br
+        .sentence-list
+          %ul.list-group
+            -@a.each do |s|
+              %li.list-group-item= s
+  
+        %form{ :action => "/sentences/#{@emo}", :method => "post"}
+          %label{:for => "sentence"}
+            %textarea{:name => "sentence"}
+            %input{:class => "btn btn-primary", :type => "submit", :value => "ADD"}

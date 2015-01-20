@@ -48,6 +48,9 @@ class DBManager
 		@sentences.update(:count => 0)
 		@db.drop_table :su_relationships
 	end
+	def kill userid
+		@users.where(:userid => userid).delete
+	end
 end
 
 if __FILE__ == $PROGRAM_NAME
@@ -66,9 +69,11 @@ if __FILE__ == $PROGRAM_NAME
 		#elsif arg == 'adds'
 		#DBManager.enter_msgs{|s| m.add_sentence s, ARGV[1]}
 	elsif arg == 'rmsentence'
-		m.rm_sentence ARGV[1].to_i
+		ARGV[1..-1].each {|id| m.rm_sentence id.to_i}
 	elsif arg == 'refresh'
 		m.refresh_sentences
+	elsif arg == "kill"
+		ARGV[1..-1].each {|id| m.kill id}
 	elsif arg == 'commands'
 		puts 'drop'
 		puts 'msg'
@@ -77,8 +82,9 @@ if __FILE__ == $PROGRAM_NAME
 		puts 'sentences'
 		puts 'rmsentence'
 		puts 'refresh'
+		puts 'kill'
 	elsif arg == 'completions'
-		if ['msg', 'peek'].include? ARGV[1]
+		if ['msg', 'peek', 'kill'].include? ARGV[1]
 			m.get_all_users.each do |e|
 				puts e[:userid]
 			end

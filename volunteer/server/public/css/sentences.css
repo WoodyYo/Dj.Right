@@ -1,4 +1,12 @@
 .sentence-list {
 	width: 500px;
-	margin: 30px;
+}
+.main {
+	margin: 20px;
+}
+textarea {
+	width: 500px;
+}
+.bar {
+	margin: 0px;
 }
