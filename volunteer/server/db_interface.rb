@@ -50,6 +50,10 @@ class DBManager
 	end
 	def kill userid
 		@users.where(:userid => userid).delete
+		system "rm data/angry/#{userid}_* -rf"
+		system "rm data/happy/#{userid}_* -rf"
+		system "rm data/sad/#{userid}_* -rf"
+		system "rm data/joyful/#{userid}_* -rf"
 	end
 end
 
@@ -57,7 +61,7 @@ if __FILE__ == $PROGRAM_NAME
 	m = DBManager.new
 	arg = ARGV[0]
 	if arg == 'drop'
-		m.dropall
+		#m.dropall
 	elsif arg == 'msg'		
 		DBManager.enter_msgs{|s| m.send_msg ARGV[1], s}
 	elsif arg == 'peek'

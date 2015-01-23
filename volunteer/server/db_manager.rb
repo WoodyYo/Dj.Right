@@ -1,3 +1,4 @@
+# -*-  -*-
 require 'sequel'
 
 LIST = ["happy", "angry", "sad", "joyful"]
@@ -38,7 +39,7 @@ class DBManager
 		@users.count
 	end
 	def create_user id
-		if id =~ / |\n/i
+		if id =~ / |\n/i or id.length < 2 or id =~ /\?/i
 			raise ArgumentError, 'ID Illegal'
 		end
 		begin
@@ -78,7 +79,7 @@ class DBManager
 	def get_sentence emo, userid
 		emo = LIST.find_index emo
 		s = nil
-		@sentences.where('count < 3 and emo=?', emo).each do |sentence|
+		@sentences.where('count < 5 and emo=?', emo).each do |sentence|
 			if @su_rs.where(:sid => sentence[:sid], :userid => userid).count == 0
 				s = sentence
 				break
@@ -94,7 +95,7 @@ class DBManager
 	end
 	def get_sentences emo
 		emo = LIST.find_index emo
-		@sentences.select(:sentence).where('count < 3 and emo=?', emo).collect do |e|
+		@sentences.select(:sentence).where('count < 5 and emo=?', emo).collect do |e|
 			e[:sentence]
 		end
 	end
